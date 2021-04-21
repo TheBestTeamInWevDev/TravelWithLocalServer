@@ -5,17 +5,23 @@ const findUserByUsername = (username) => {
     return usersModel.find({username})
 }
 
-const findUserByCredentials = (credetials) => {
+const findUserByCredentials = (credentials) => {
+    console.log("User DAO Login findUserByCredentials: "+ credentials.username +
+        " Password: " +credentials.password)
     return usersModel.findOne({
-        username: credetials.username,
-        password: credetials.password
+        username: credentials.username,
+        password: credentials.password
     })
     // return usersModel.find({username})
 }
 
 // specific to our domain, generic
-const createUser = (user) => {
-    return usersModel.create(user)
+const createUser = (credentials) => {
+    console.log("User DAO createUser: UserName: "+ credentials.username
+        + " Password: " +credentials.password
+        + " email: " + credentials.email
+        + " role: "+ credentials.role)
+    return usersModel.create({username:credentials.username , password:credentials.password, email: credentials.email,role:credentials.role})
 }
 
 module.exports = {

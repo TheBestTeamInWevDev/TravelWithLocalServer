@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const dbUrl = "mongodb+srv://admin:admin@cluster0.4dcbr.mongodb.net/travelwithlocalsdb?retryWrites=true&w=majority"
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -14,7 +15,7 @@ app.use(session({
 
 const mongoose = require('mongoose');
 mongoose.connect(
-    'mongodb://localhost:27017/whiteboard-02',
+    dbUrl,
     {useNewUrlParser: true, useUnifiedTopology: true})
     .then(() => {
         console.log("MONGO CONNECTION OPEN!!!")
@@ -35,8 +36,6 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Credentials", "true");
     next();
 });
-
 require('./controllers/users-controller')(app)
-
 
 app.listen(4000)

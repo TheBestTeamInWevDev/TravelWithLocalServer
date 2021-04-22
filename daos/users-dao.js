@@ -1,4 +1,5 @@
 const usersModel = require("../models/users/users-model")
+const poiModel = require("../models/POI/poi-model")
 
 const findUserByUsername = (username) => {
     // return usersModel.find({username: username})
@@ -11,7 +12,7 @@ const findUserByCredentials = (credentials) => {
     return usersModel.findOne({
         username: credentials.username,
         password: credentials.password
-    })
+    }).populate("favoritePlaces", poiModel).exec()
     // return usersModel.find({username})
 }
 

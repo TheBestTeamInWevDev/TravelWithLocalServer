@@ -1,25 +1,35 @@
 const mongoose = require('mongoose')
 Schema = mongoose.Schema
 const poiSchema = Schema({
-    name: {type: String},
-    PoiID: {type: String},
-    imageURL: {type: String},
-    WeekdayHours: [
+    location: {
+        type: String,
+        required: true
+    },
+    poiID: {
+        type: String,
+        required: true
+    },
+    imageURL: {
+        type: String,
+        required: true
+    },
+    weekdayHours: [
         {
             type: String
         }],
-    Location: {
-        type: String
+    address: {
+        type: String,
+        required: true
     },
-    listOfRequests: [
+    listOfTravellers: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'UserModel'
         }],
     listOfLocals: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'UserModel'
         }]
 }, {collection: "poi"})
 

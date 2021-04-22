@@ -37,5 +37,6 @@ app.use(function (req, res, next) {
     next();
 });
 require('./controllers/users-controller')(app)
+require('./controllers/poi-controller')(app)
 
 app.listen(4000)

@@ -3,7 +3,9 @@ const poiModel = require("../models/POI/poi-model")
 
 const findUserByUsername = (username) => {
     // return usersModel.find({username: username})
-    return usersModel.find({username})
+    return usersModel.find({
+        username: username
+    })
 }
 
 const findUserByCredentials = (credentials) => {

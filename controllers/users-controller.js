@@ -77,9 +77,26 @@ module.exports = (app) => {
             })
     }
 
+    const publicProfile = (req, res) => {
+        const username = req.params.username;
+        console.log(username)
+        userDao.findUserByUsername(username)
+            .then((user) => {
+                if(user) {
+                    console.log("Successfully find user")
+                    console.log(user.username)
+                    res.send(user)
+                } else {
+                    console.log("Can not find user")
+                    res.send([])
+                }
+            })
+    }
+
     app.post("/api/users/profile", profile);
     app.post("/api/users/register", register);
     app.post("/api/users/login", login);
     app.post("/api/users/logout", logout);
     app.get("/api/users/findGuides/:location", findGuidesByLocation)
+    app.get("/api/users/publicProfile/:username", publicProfile)
 }

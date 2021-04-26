@@ -22,7 +22,29 @@ const createUser = (credentials) => {
         + " Password: " +credentials.password
         + " email: " + credentials.email
         + " role: "+ credentials.role)
-    return usersModel.create({username:credentials.username , password:credentials.password, email: credentials.email,role:credentials.role})
+    return usersModel.create({username:credentials.username , password:credentials.password,
+        email: credentials.email,role:credentials.role})
+}
+// Mongoose's findOneAndUpdate() is slightly different from the MongoDB Node.js driver's findOneAndUpdate()
+// because it returns the document itself, not a result object.
+const updateUser = (credentials) => {
+    console.log("User DAO createUser: UserName: "+ credentials.username
+        + " Password: " +credentials.password
+        + " email: " + credentials.email
+        + " role: "+ credentials.role)
+    return usersModel.findOneAndUpdate({
+            username: credentials.username,
+            password: credentials.password
+        },
+        {username:credentials.username, password:credentials.password, email: credentials.email, role:credentials.role}
+    )
+
+    // findOne({
+    //     username: credentials.username,
+    //     password: credentials.password
+    // }).
+
+    // {username:credentials.username, password:credentials.password, email: credentials.email, role:credentials.role}
 }
 
 const findGuidesByLocation = (location) => {
@@ -35,5 +57,6 @@ module.exports = {
     findUserByUsername,
     findUserByCredentials,
     createUser,
-    findGuidesByLocation
+    findGuidesByLocation,
+    updateUser
 }

@@ -47,6 +47,7 @@ module.exports = (app) => {
     }
 
 
+
     app.post("/api/poi/addPoi", postPoi);
     app.get("/api/poi/:poiID", findPoiByPoiID);
 }

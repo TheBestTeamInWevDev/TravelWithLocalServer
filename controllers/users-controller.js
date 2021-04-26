@@ -9,7 +9,8 @@ module.exports = (app) => {
         console.log("User Controller Registration: UserName: "+ credentials.username +
             " Password: " +credentials.password+
             " email: " + credentials.email +
-            " role: "+ credentials.role)
+            " role: "+ credentials.role+
+            " location: "+ credentials.location)
         userDao.findUserByUsername(credentials.username)
             .then((actualUser) => {
                 if(actualUser.length > 0) {
@@ -65,10 +66,11 @@ module.exports = (app) => {
 
     const findGuidesByLocation = (req, res) => {
         const location = req.params.location;
+        console.log("findGuidesByLocation: " + location)
         userDao.findGuidesByLocation(location)
             .then((guides) => {
                 if(guides) {
-                    console.log("Successfully find guides")
+                    console.log("Successfully find guides" + JSON.stringify(guides))
                     res.send(guides)
                 } else {
                     console.log("Can not find guides")
@@ -78,17 +80,52 @@ module.exports = (app) => {
     }
 
     const publicProfile = (req, res) => {
-        const username = req.params.username;
-        console.log(username)
-        userDao.findUserByUsername(username)
+        const guideName = req.params.username;
+        console.log("publicProfile"+ guideName)
+        userDao.findUserByUsername(guideName)
             .then((user) => {
                 if(user) {
-                    console.log("Successfully find user")
-                    console.log(user.username)
+                    console.log("Successfully find user" + JSON.stringify(user))
                     res.send(user)
                 } else {
                     console.log("Can not find user")
                     res.send([])
+                }
+            })
+    }
+
+
+    const requestGuide = (req, res) => {
+        const userName = req.params.username;
+        const guideName = req.params.guidename;
+
+        console.log("userName: " + userName + " requestGuide: "+ guideName)
+        userDao.findUserByUsername(userName)
+            .then((user) => {
+                if (user){
+                    userDao.findUserByUsername(guideName)
+                        .then((guideUser) => {
+                            if (guideUser){
+                                if (!userDao.checkIfGuideRequested(userName,guideName).length){
+                                    console.log("Guide name found in this user, user already added")
+                                    res.send("1")
+                                }else{
+                                    user.listOfRequests.push(guideUser);
+                                    guideUser.listOfRequests.push(user);
+                                    guideUser.save();
+                                    user.save();
+                                    console.log("Request Success")
+                                    res.send("1")
+                                }
+                            }else{
+                                console.log("Request Failed")
+                                res.send("0")
+                            }
+                        }
+                        )
+                }else{
+                    console.log("Request Failed")
+                    res.send("0")
                 }
             })
     }
@@ -99,4 +136,5 @@ module.exports = (app) => {
     app.post("/api/users/logout", logout);
     app.get("/api/users/findGuides/:location", findGuidesByLocation)
     app.get("/api/users/publicProfile/:username", publicProfile)
+    app.post("/api/users/:username/request/:guidename", requestGuide)
 }

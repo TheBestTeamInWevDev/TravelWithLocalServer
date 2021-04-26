@@ -25,8 +25,15 @@ const createUser = (credentials) => {
     return usersModel.create({username:credentials.username , password:credentials.password, email: credentials.email,role:credentials.role})
 }
 
+const findGuidesByLocation = (location) => {
+    return usersModel.find({
+        role: "LOCALGUIDE",
+        location: location
+    })
+}
 module.exports = {
     findUserByUsername,
     findUserByCredentials,
-    createUser
+    createUser,
+    findGuidesByLocation
 }

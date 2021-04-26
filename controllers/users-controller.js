@@ -63,8 +63,23 @@ module.exports = (app) => {
         res.send("1")
     }
 
+    const findGuidesByLocation = (req, res) => {
+        const location = req.params.location;
+        userDao.findGuidesByLocation(location)
+            .then((guides) => {
+                if(guides) {
+                    console.log("Successfully find guides")
+                    res.send(guides)
+                } else {
+                    console.log("Can not find guides")
+                    res.send([])
+                }
+            })
+    }
+
     app.post("/api/users/profile", profile);
     app.post("/api/users/register", register);
     app.post("/api/users/login", login);
     app.post("/api/users/logout", logout);
+    app.get("/api/users/findGuides/:location", findGuidesByLocation)
 }

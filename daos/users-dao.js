@@ -48,6 +48,8 @@ const checkIfGuideRequested = (username, guidename) => {
         }))
 
 }
+
+
 module.exports = {
     findUserByUsername,
     findUserByCredentials,

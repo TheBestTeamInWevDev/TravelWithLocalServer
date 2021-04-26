@@ -58,6 +58,11 @@ const addUserToPoi = (poiInfo) => {
         )
 }
 
+
+
+
+
+
 module.exports = {
     findPoiByPoiID,
     createPoi,

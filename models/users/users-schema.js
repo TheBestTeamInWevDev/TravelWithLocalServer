@@ -29,6 +29,9 @@ const usersSchema = Schema({
         type: String,
         enum: ['TRAVELLER', 'LOCALGUIDE'],
         required:true
+    },
+    location: {
+        type: String,
     }
 }, {collection: "users"})
 

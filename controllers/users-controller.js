@@ -9,8 +9,7 @@ module.exports = (app) => {
         console.log("User Controller Registration: UserName: "+ credentials.username +
             " Password: " +credentials.password+
             " email: " + credentials.email +
-            " role: "+ credentials.role+
-            " location: "+ credentials.location)
+            " role: "+ credentials.role)
         userDao.findUserByUsername(credentials.username)
             .then((actualUser) => {
                 if(actualUser.length > 0) {
@@ -25,6 +24,31 @@ module.exports = (app) => {
                             res.send(newUser)
                         })
                 }
+            })
+    }
+
+    const update = (req, res) => {
+        const credentials = req.body;
+        // dao returns a promise
+        // find out if user exist, then we can register
+        console.log("User Controller Update: UserName: "+ credentials.username +
+            " Password: " +credentials.password+
+            " email: " + credentials.email +
+            " role: "+ credentials.role)
+        userDao.findUserByUsername(credentials.username)
+            .then((actualUser) => {
+                // if(actualUser.length > 0) {
+                //     // string 0, there is a user
+                //     // client knows what to check for
+                //     res.send("0")
+                // } else {
+                //     // user is not there
+                    userDao.updateUser(credentials)
+                        .then((updatedUser) => {
+                            req.session['profile'] = updatedUser
+                            res.send(updatedUser)
+                        })
+                // }
             })
     }
 
@@ -59,18 +83,37 @@ module.exports = (app) => {
     const logout = (req, res) => {
         console.log("Controller logout user")
         console.log("Successfully logout")
+        const currentUser = req.session["currentUser"]
+        if (currentUser){
+            console.log("Controller get current user: " + currentUser.username + "'s profile")
+        }else{
+            console.log("Controller can not get profile")
+        }
         req.session["currentUser"] = null
         req.session.destroy()
+        if (currentUser){
+            console.log("Controller get current user: " + currentUser.username + "'s profile")
+        }else{
+            console.log("Controller can not get profile")
+        }
+        // // 销毁 session
+        // req.session.destroy();
+        // // 清除 cookie
+        // res.clearCookie(this.cookie, { path: '/' });
+        // // 调用 passport 的 logout方法
+        // req.logout();
+        // // 重定向到首页
+        // // res.redirect('/');
+
         res.send("1")
     }
 
     const findGuidesByLocation = (req, res) => {
         const location = req.params.location;
-        console.log("findGuidesByLocation: " + location)
         userDao.findGuidesByLocation(location)
             .then((guides) => {
                 if(guides) {
-                    console.log("Successfully find guides" + JSON.stringify(guides))
+                    console.log("Successfully find guides")
                     res.send(guides)
                 } else {
                     console.log("Can not find guides")
@@ -79,62 +122,11 @@ module.exports = (app) => {
             })
     }
 
-    const publicProfile = (req, res) => {
-        const guideName = req.params.username;
-        console.log("publicProfile"+ guideName)
-        userDao.findUserByUsername(guideName)
-            .then((user) => {
-                if(user) {
-                    console.log("Successfully find user" + JSON.stringify(user))
-                    res.send(user)
-                } else {
-                    console.log("Can not find user")
-                    res.send([])
-                }
-            })
-    }
-
-
-    const requestGuide = (req, res) => {
-        const userName = req.params.username;
-        const guideName = req.params.guidename;
-
-        console.log("userName: " + userName + " requestGuide: "+ guideName)
-        userDao.findUserByUsername(userName)
-            .then((user) => {
-                if (user){
-                    userDao.findUserByUsername(guideName)
-                        .then((guideUser) => {
-                            if (guideUser){
-                                if (!userDao.checkIfGuideRequested(userName,guideName).length){
-                                    console.log("Guide name found in this user, user already added")
-                                    res.send("1")
-                                }else{
-                                    user.listOfRequests.push(guideUser);
-                                    guideUser.listOfRequests.push(user);
-                                    guideUser.save();
-                                    user.save();
-                                    console.log("Request Success")
-                                    res.send("1")
-                                }
-                            }else{
-                                console.log("Request Failed")
-                                res.send("0")
-                            }
-                        }
-                        )
-                }else{
-                    console.log("Request Failed")
-                    res.send("0")
-                }
-            })
-    }
-
+    // why post here?!
     app.post("/api/users/profile", profile);
     app.post("/api/users/register", register);
+    app.post("/api/users/update", update);
     app.post("/api/users/login", login);
     app.post("/api/users/logout", logout);
     app.get("/api/users/findGuides/:location", findGuidesByLocation)
-    app.get("/api/users/publicProfile/:username", publicProfile)
-    app.post("/api/users/:username/request/:guidename", requestGuide)
 }

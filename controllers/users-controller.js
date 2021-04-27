@@ -1,4 +1,5 @@
 const userDao = require("../daos/users-dao")
+const poiDao = require("../daos/poi-dao")
 
 module.exports = (app) => {
 
@@ -122,6 +123,31 @@ module.exports = (app) => {
             })
     }
 
+    const deleteFavouritePlace = (req, res) => {
+        const poiID = req.params.poiID;
+        const currentUser = req.session["currentUser"]
+        userDao.deletePlaceByUserName(poiID, currentUser)
+            .then((result) => {
+                if (result){
+                    res.send("1")
+                }else{
+                    res.send("0")
+                }
+            })
+    }
+
+    const checkPlaceMarked = (req, res) => {
+        const currentUser = req.session["currentUser"]
+        const poiID = req.params.poiID;
+        if (!poiDao.checkPoiWithUsername(poiID, currentUser.username).length){
+            console.log("username found this POI, mark star")
+            res.send("1")
+        }else{
+            console.log("username not found this POI, unmark star")
+            res.send("0")
+        }
+    }
+
     // why post here?!
     app.post("/api/users/profile", profile);
     app.post("/api/users/register", register);
@@ -129,4 +155,6 @@ module.exports = (app) => {
     app.post("/api/users/login", login);
     app.post("/api/users/logout", logout);
     app.get("/api/users/findGuides/:location", findGuidesByLocation)
+    app.delete("/api/users/delete/:poiID", deleteFavouritePlace)
+    app.get("/api/users/check/:poiID", checkPlaceMarked)
 }

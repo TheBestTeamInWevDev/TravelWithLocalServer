@@ -1,9 +1,9 @@
 const usersModel = require("../models/users/users-model")
 const poiModel = require("../models/POI/poi-model")
+const poiDao = require("../daos/poi-dao")
 
 const findUserByUsername = (username) => {
-    // return usersModel.find({username: username})
-    return usersModel.find({username})
+    return usersModel.findOne({username: username})
 }
 
 const findUserByCredentials = (credentials) => {
@@ -12,7 +12,7 @@ const findUserByCredentials = (credentials) => {
     return usersModel.findOne({
         username: credentials.username,
         password: credentials.password
-    }).populate("favoritePlaces", poiModel).exec()
+    }).populate("favoritePlaces", poiModel).populate("listOfRequests").exec()
     // return usersModel.find({username})
 }
 
@@ -64,10 +64,35 @@ const checkIfGuideRequested = (username, guidename) => {
 
 }
 
+const deletePlaceByUserName = (poiID, currentUser) => {
+    const poiObjID = poiDao.findPoiByPoiID(poiID)
+    console.log("User DAO deletePlaceByUserName: "+ currentUser.name + " with " + poiObjID.location)
+    usersModel.findOneAndUpdate(currentUser, { $pull: {favoritePlaces: poiObjID} }, (err, data) => {
+        if (err) {
+            console.log("Fail to delete favourite places in user schema")
+            return 0;
+        }
+        poiModel.findOneAndUpdate(poiObjID, { $pull: {listOfTravellers: currentUser} }, (err, data) => {
+            if (err) {
+                console.log("Fail to delete list of  travellers in places")
+                return 0;
+            }
+            console.log("delete favourite places in user schema")
+            console.log("delete list of  travellers in places")
+            return 1;
+        });
+        console.log("delete favourite places in user schema")
+        return 1;
+    });
+
+}
+
 module.exports = {
     findUserByUsername,
     findUserByCredentials,
     createUser,
     findGuidesByLocation,
-    updateUser
+    updateUser,
+    checkIfGuideRequested,
+    deletePlaceByUserName
 }

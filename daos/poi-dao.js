@@ -9,13 +9,16 @@ const findPoiByPoiID = (poiID) => {
     // return usersModel.find({username})
 }
 
-const checkPoiWithUsername = (poiID, username) => {
-    console.log("POI DAO checkPoiWithUsername: "+ poiID + " with " + username)
-    return usersModel.findOne({username:username})
-        .then((resultUser => {
-            poiModel.findOne({poiID: poiID}, {listOfTravellers: resultUser})
-        }))
-}
+// const checkPoiWithUsername = (poiID, username) => {
+//     console.log("POI DAO checkPoiWithUsername: "+ poiID + " with " + username)
+//     return usersModel.findOne({username:username})
+//         .then((resultUser) => {
+//             poiModel.findOne({poiID: poiID, listOfTravellers: resultUser._id})
+//                 .then((result) => {
+//                     console.log("result: "+result)
+//                 })
+//         })
+// }
 
 
 // specific to our domain, generic
@@ -66,6 +69,6 @@ const addUserToPoi = (poiInfo) => {
 module.exports = {
     findPoiByPoiID,
     createPoi,
-    addUserToPoi,
-    checkPoiWithUsername
+    addUserToPoi
+    // checkPoiWithUsername
 }

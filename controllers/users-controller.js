@@ -21,7 +21,7 @@ module.exports = (app) => {
                     // user is not there
                     userDao.createUser(credentials)
                         .then((newUser) => {
-                            req.session['profile'] = newUser
+                            req.session['currentUser'] = newUser
                             res.send(newUser)
                         })
                 }
@@ -37,7 +37,8 @@ module.exports = (app) => {
             " email: " + credentials.email +
             " role: "+ credentials.role)
         userDao.findUserByUsername(credentials.username)
-            .then((actualUser) => {
+            .then(() => {
+                console.log("before dao.update: " + credentials.email)
                 // if(actualUser.length > 0) {
                 //     // string 0, there is a user
                 //     // client knows what to check for
@@ -45,12 +46,20 @@ module.exports = (app) => {
                 // } else {
                 //     // user is not there
                     userDao.updateUser(credentials)
+                        // .then(() => {
+                        //     req.session['currentUser'] = credentials
+                        //     res.send(credentials)
+                        //         console.log("after dao.update: " + credentials.email)
+                        // })
+                        // 出口转内销
                         .then((updatedUser) => {
-                            req.session['profile'] = updatedUser
+                            req.session['currentUser'] = credentials
                             res.send(updatedUser)
+                            console.log("after dao.update: " + updatedUser.email)
                         })
                 // }
-            })
+            }
+            )
     }
 
     const login = (req, res) => {
@@ -73,7 +82,8 @@ module.exports = (app) => {
     const profile = (req, res) => {
         const currentUser = req.session["currentUser"]
         if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
+            console.log("In Profile: Controller get current user: " + currentUser.username + "'s profile")
+            console.log(currentUser.email)
             res.send(currentUser)
         }else{
             console.log("Controller can not get profile")
@@ -84,28 +94,8 @@ module.exports = (app) => {
     const logout = (req, res) => {
         console.log("Controller logout user")
         console.log("Successfully logout")
-        const currentUser = req.session["currentUser"]
-        if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
-        }else{
-            console.log("Controller can not get profile")
-        }
         req.session["currentUser"] = null
         req.session.destroy()
-        if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
-        }else{
-            console.log("Controller can not get profile")
-        }
-        // // 销毁 session
-        // req.session.destroy();
-        // // 清除 cookie
-        // res.clearCookie(this.cookie, { path: '/' });
-        // // 调用 passport 的 logout方法
-        // req.logout();
-        // // 重定向到首页
-        // // res.redirect('/');
-
         res.send("1")
     }
 

@@ -1,5 +1,8 @@
 const userDao = require("../daos/users-dao")
 const poiDao = require("../daos/poi-dao")
+const poiModel = require("../models/POI/poi-model")
+const usersModel = require("../models/users/users-model")
+
 
 module.exports = (app) => {
 
@@ -100,6 +103,7 @@ module.exports = (app) => {
     }
 
     const findGuidesByLocation = (req, res) => {
+        console.log("User Controller findGuidesByLocation")
         const location = req.params.location;
         userDao.findGuidesByLocation(location)
             .then((guides) => {
@@ -114,6 +118,8 @@ module.exports = (app) => {
     }
 
     const deleteFavouritePlace = (req, res) => {
+        console.log("User Controller deleteFavouritePlace")
+
         const poiID = req.params.poiID;
         const currentUser = req.session["currentUser"]
         userDao.deletePlaceByUserName(poiID, currentUser)
@@ -126,16 +132,48 @@ module.exports = (app) => {
             })
     }
 
-    const checkPlaceMarked = (req, res) => {
+    // const checkPlaceMarked = (req, res) => {
+    //     console.log("User Controller checkPlaceMarked")
+    //
+    //
+    //     const currentUser = req.session["currentUser"]
+    //     const poiID = req.params.poiID;
+    //     userDao.checkIfUserMarkedPlace(poiID, currentUser)
+    //         .then((result) => {
+    //             if (result === 1){
+    //                 console.log("username found this POI, mark star ")
+    //                 console.log("result " + result)
+    //                 res.send("1")
+    //             }else{
+    //                 console.log("username not found this POI, unmark star ")
+    //                 console.log("result " + result)
+    //                 res.send("0")
+    //             }
+    //         })
+    //     }
+    const checkPlaceMarked = (req, res) =>{
         const currentUser = req.session["currentUser"]
         const poiID = req.params.poiID;
-        if (!poiDao.checkPoiWithUsername(poiID, currentUser.username).length){
-            console.log("username found this POI, mark star")
-            res.send("1")
-        }else{
-            console.log("username not found this POI, unmark star")
-            res.send("0")
-        }
+        console.log("User Controller checkIfUserMarkedPlace: "+ poiID + " with " + currentUser.username)
+        return poiModel.findOne({poiID: poiID})
+            .then((resultPlace) => {
+                if (resultPlace == null) {
+                    console.log("POI does not exist in DB yet " + resultPlace)
+                    res.send("0")
+                } else {
+                    console.log("POI found " + resultPlace.location)
+                    usersModel.findOne({username: currentUser.username, favoritePlaces: resultPlace._id})
+                        .then((result) => {
+                            if (!result) {
+                                console.log("POI exists but this user never marked it ")
+                                res.send("0")
+                            } else {
+                                console.log("POI exists and this user marked it " + result)
+                                res.send("1")
+                            }
+                        })
+                }
+            })
     }
 
     // why post here?!

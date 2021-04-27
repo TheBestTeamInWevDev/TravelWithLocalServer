@@ -69,10 +69,12 @@ const checkIfGuideRequested = (username, guidename) => {
 
 }
 
+
+
 const deletePlaceByUserName = (poiID, currentUser) => {
     const poiObjID = poiDao.findPoiByPoiID(poiID)
     console.log("User DAO deletePlaceByUserName: "+ currentUser.name + " with " + poiObjID.location)
-    usersModel.findOneAndUpdate(currentUser, { $pull: {favoritePlaces: poiObjID} }, (err, data) => {
+    return usersModel.findOneAndUpdate(currentUser, { $pull: {favoritePlaces: poiObjID} }, (err, data) => {
         if (err) {
             console.log("Fail to delete favourite places in user schema")
             return 0;

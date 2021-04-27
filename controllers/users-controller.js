@@ -36,7 +36,7 @@ module.exports = (app) => {
             " email: " + credentials.email +
             " role: "+ credentials.role)
         userDao.findUserByUsername(credentials.username)
-            .then((actualUser) => {
+            .then(() => {
                 // if(actualUser.length > 0) {
                 //     // string 0, there is a user
                 //     // client knows what to check for
@@ -49,7 +49,8 @@ module.exports = (app) => {
                             res.send(updatedUser)
                         })
                 // }
-            })
+            }
+            )
     }
 
     const login = (req, res) => {
@@ -83,28 +84,8 @@ module.exports = (app) => {
     const logout = (req, res) => {
         console.log("Controller logout user")
         console.log("Successfully logout")
-        const currentUser = req.session["currentUser"]
-        if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
-        }else{
-            console.log("Controller can not get profile")
-        }
         req.session["currentUser"] = null
         req.session.destroy()
-        if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
-        }else{
-            console.log("Controller can not get profile")
-        }
-        // // 销毁 session
-        // req.session.destroy();
-        // // 清除 cookie
-        // res.clearCookie(this.cookie, { path: '/' });
-        // // 调用 passport 的 logout方法
-        // req.logout();
-        // // 重定向到首页
-        // // res.redirect('/');
-
         res.send("1")
     }
 

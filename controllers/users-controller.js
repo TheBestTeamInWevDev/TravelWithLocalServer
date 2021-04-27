@@ -20,7 +20,7 @@ module.exports = (app) => {
                     // user is not there
                     userDao.createUser(credentials)
                         .then((newUser) => {
-                            req.session['profile'] = newUser
+                            req.session['currentUser'] = newUser
                             res.send(newUser)
                         })
                 }
@@ -37,6 +37,7 @@ module.exports = (app) => {
             " role: "+ credentials.role)
         userDao.findUserByUsername(credentials.username)
             .then(() => {
+                console.log("before dao.update: " + credentials.email)
                 // if(actualUser.length > 0) {
                 //     // string 0, there is a user
                 //     // client knows what to check for
@@ -44,9 +45,16 @@ module.exports = (app) => {
                 // } else {
                 //     // user is not there
                     userDao.updateUser(credentials)
+                        // .then(() => {
+                        //     req.session['currentUser'] = credentials
+                        //     res.send(credentials)
+                        //         console.log("after dao.update: " + credentials.email)
+                        // })
+                        // 出口转内销
                         .then((updatedUser) => {
-                            req.session['profile'] = updatedUser
+                            req.session['currentUser'] = credentials
                             res.send(updatedUser)
+                            console.log("after dao.update: " + updatedUser.email)
                         })
                 // }
             }
@@ -73,7 +81,8 @@ module.exports = (app) => {
     const profile = (req, res) => {
         const currentUser = req.session["currentUser"]
         if (currentUser){
-            console.log("Controller get current user: " + currentUser.username + "'s profile")
+            console.log("In Profile: Controller get current user: " + currentUser.username + "'s profile")
+            console.log(currentUser.email)
             res.send(currentUser)
         }else{
             console.log("Controller can not get profile")

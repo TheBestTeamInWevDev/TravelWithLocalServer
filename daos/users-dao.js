@@ -3,7 +3,7 @@ const poiModel = require("../models/POI/poi-model")
 
 const findUserByUsername = (username) => {
     // return usersModel.find({username: username})
-    return usersModel.find({username})
+    return usersModel.findOne({username})
 }
 
 const findUserByCredentials = (credentials) => {
@@ -32,11 +32,14 @@ const updateUser = (credentials) => {
         + " Password: " +credentials.password
         + " email: " + credentials.email
         + " role: "+ credentials.role)
+    // return value false
     return usersModel.findOneAndUpdate({
-            username: credentials.username,
-            password: credentials.password
+            username: credentials.username
         },
-        {username:credentials.username, password:credentials.password, email: credentials.email, role:credentials.role}
+        {password:credentials.password, email: credentials.email},
+        {
+            new: true
+        }
     )
 
     // findOne({

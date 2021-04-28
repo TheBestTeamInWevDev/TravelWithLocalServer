@@ -92,8 +92,22 @@ module.exports = (app) => {
             })
     }
 
+    const findSortedPoi =  (req, res) => {
+        console.log("POI Controller findSortedPoi");
+        poiDao.findSortedPoiByListOfTravellers()
+            .then((poiList) => {
+                if (poiList.length > 0){
+                    console.log("POI sorted list" + poiList);
+                    res.send(poiList)
+                }else{
+                    res.send("0")
+                }
+            }
+            )
+    }
 
 
     app.post("/api/poi/addPoi", postPoi);
-    app.get("/api/poi/:poiID", findPoiByPoiID);
+    app.get("/api/poi/find/:poiID", findPoiByPoiID);
+    app.get("/api/poi/sort", findSortedPoi);
 }

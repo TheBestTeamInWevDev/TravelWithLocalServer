@@ -61,7 +61,29 @@ const addUserToPoi = (poiInfo) => {
         )
 }
 
+const findSortedPoiByListOfTravellers = () => {
+    console.log("POI DAO findSortedPoiByListOfTravellers");
+    return poiModel.aggregate(
+        [
+            { "$project": {
+                    "location": 1,
+                    "poiID": 1,
+                    "imageURL": 1,
+                    "address": 1,
+                    "length": { "$size": "$listOfTravellers" }
+                }},
+            { "$sort": { "length": -1 } },
+            { "$limit": 4 }
+        ],
+        function(err,results) {
+            console.log("findSortedPoiByListOfTravellers results: " + results)
+            // results in here
+            // return results
+        }
+    )
 
+
+}
 
 
 
@@ -69,6 +91,7 @@ const addUserToPoi = (poiInfo) => {
 module.exports = {
     findPoiByPoiID,
     createPoi,
-    addUserToPoi
+    addUserToPoi,
+    findSortedPoiByListOfTravellers
     // checkPoiWithUsername
 }

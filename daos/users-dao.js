@@ -5,7 +5,7 @@ const poiDao = require("../daos/poi-dao")
 const findUserByUsername = (username) => {
 
     // return usersModel.find({username: username})
-    return usersModel.findOne({username})
+    return usersModel.findOne({username: username})
 }
 
 const findUserByCredentials = (credentials) => {
@@ -72,26 +72,28 @@ const checkIfGuideRequested = (username, guidename) => {
 
 
 const deletePlaceByUserName = (poiID, currentUser) => {
-    const poiObjID = poiDao.findPoiByPoiID(poiID)
-    console.log("User DAO deletePlaceByUserName: "+ currentUser.name + " with " + poiObjID.location)
-    return usersModel.findOneAndUpdate(currentUser, { $pull: {favoritePlaces: poiObjID} }, (err, data) => {
-        if (err) {
-            console.log("Fail to delete favourite places in user schema")
-            return 0;
-        }
-        poiModel.findOneAndUpdate(poiObjID, { $pull: {listOfTravellers: currentUser} }, (err, data) => {
-            if (err) {
-                console.log("Fail to delete list of  travellers in places")
-                return 0;
-            }
-            console.log("delete favourite places in user schema")
-            console.log("delete list of  travellers in places")
-            return 1;
-        });
-        console.log("delete favourite places in user schema")
-        return 1;
-    });
+    return poiDao.findPoiByPoiID(poiID)
+        .then((poiObject) => {
+            console.log("User DAO deletePlaceByUserName: "+ currentUser.name + " with " + poiObject.location)
+            usersModel.findOneAndUpdate({username: currentUser.username}, { $pull: {favoritePlaces: poiObject._id} }, {new: true},(err, data) => {
+                if (err) {
+                    console.log("Fail to delete favourite places in user schema")
+                    // return 0;
+                }
+                poiModel.findOneAndUpdate({poiID: poiObject.poiID}, { $pull: {listOfTravellers: currentUser._id}}, {new: true},(err, data) => {
 
+                    if (err) {
+                        console.log("Fail to delete list of  travellers in places")
+                        // return 0;
+                    }
+                    console.log("delete list of  travellers in places")
+                    //
+                    // return 1;
+                });
+                console.log("delete favourite places in user schema")
+                // return 1;
+            });
+        })
 }
 
 module.exports = {

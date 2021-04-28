@@ -84,14 +84,28 @@ module.exports = (app) => {
 
     const profile = (req, res) => {
         const currentUser = req.session["currentUser"]
-        if (currentUser){
-            console.log("In Profile: Controller get current user: " + currentUser.username + "'s profile")
-            console.log(currentUser.email)
-            res.send(currentUser)
-        }else{
-            console.log("Controller can not get profile")
-            res.send("0")
-        }
+        userDao.findUserByCredentials(currentUser)
+            .then((latestUser) => {
+                if (latestUser){
+                    // req.session['currentUser'] = latestUser
+                    console.log("In Profile: Controller get current user: " + latestUser.username + "'s profile")
+                    console.log(latestUser.email)
+                    res.send(latestUser)
+                }else{
+                    console.log("Controller can not get profile")
+                    res.send("0")
+                }
+            })
+        // if (currentUser){
+        //     // req.session['currentUser'] = latestUser
+        //     console.log("In Profile: Controller get current user: " + currentUser.username + "'s profile")
+        //     console.log(currentUser.email)
+        //     res.send(currentUser)
+        // }else{
+        //     console.log("Controller can not get profile")
+        //     res.send("0")
+        // }
+
     }
 
     const logout = (req, res) => {
@@ -118,15 +132,17 @@ module.exports = (app) => {
     }
 
     const deleteFavouritePlace = (req, res) => {
-        console.log("User Controller deleteFavouritePlace")
-
         const poiID = req.params.poiID;
         const currentUser = req.session["currentUser"]
+        console.log("User Controller deleteFavouritePlace poiID" + poiID + " currentUser " + currentUser.username)
         userDao.deletePlaceByUserName(poiID, currentUser)
             .then((result) => {
                 if (result){
+                    console.log("result from deleteFavouritePlace_1: "+ result)
+                    // req.session['currentUser'] = result
                     res.send("1")
                 }else{
+                    console.log("result from deleteFavouritePlace_0: "+ result)
                     res.send("0")
                 }
             })
@@ -176,13 +192,22 @@ module.exports = (app) => {
             })
     }
 
+    const findPublicProfile = (req, res) => {
+        const username = req.params.username;
+        return userDao.findUserByUsername(username)
+            .then((result) => {
+                res.send(result)
+            })
+    }
+
     // why post here?!
-    app.post("/api/users/profile", profile);
+    app.get("/api/users/profile", profile);
     app.post("/api/users/register", register);
     app.post("/api/users/update", update);
     app.post("/api/users/login", login);
     app.post("/api/users/logout", logout);
     app.get("/api/users/findGuides/:location", findGuidesByLocation)
-    app.delete("/api/users/delete/:poiID", deleteFavouritePlace)
+    app.post("/api/users/delete/:poiID", deleteFavouritePlace)
     app.get("/api/users/check/:poiID", checkPlaceMarked)
+    app.get("/api/users/publicProfile/:username", findPublicProfile)
 }

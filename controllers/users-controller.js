@@ -13,7 +13,8 @@ module.exports = (app) => {
         console.log("User Controller Registration: UserName: "+ credentials.username +
             " Password: " +credentials.password+
             " email: " + credentials.email +
-            " role: "+ credentials.role)
+            " role: "+ credentials.role+
+            " location: "+ credentials.location)
         userDao.findUserByUsername(credentials.username)
             .then((actualUser) => {
                 if(actualUser != null && actualUser.length > 0) {
@@ -201,10 +202,39 @@ module.exports = (app) => {
 
     const findPublicProfile = (req, res) => {
         const username = req.params.username;
+        console.log("User controller findPublicProfile " + username)
         return userDao.findUserByUsername(username)
             .then((result) => {
                 res.send(result)
             })
+    }
+
+    const requestGuideByTraveller = (req, res) => {
+        const currentUser = req.session["currentUser"]
+        const guidename = req.params.guideName;
+        console.log("User controller requestGuideByTraveller username " + currentUser.username)
+        console.log("User controller requestGuideByTraveller guidename " + guidename)
+        return userDao.checkIfGuideRequested(currentUser, guidename)
+            .then((chkResult) => {
+                if (chkResult){
+                    console.log("Request already sent " + chkResult)
+                    res.send("0")
+                }else {
+                    console.log("Request guide now " + chkResult)
+                    userDao.addToListOfRequests(currentUser.username, guidename)
+                        .then((result) => {
+                            if (result) {
+                                console.log("addToListOfRequests result 1" + chkResult)
+
+                                res.send("1")
+                            } else {
+                                console.log("addToListOfRequests result 0" + chkResult)
+
+                                res.send("0")
+                            }
+                        })
+                }
+                })
     }
 
     // why post here?!
@@ -217,4 +247,5 @@ module.exports = (app) => {
     app.post("/api/users/delete/:poiID", deleteFavouritePlace)
     app.get("/api/users/check/:poiID", checkPlaceMarked)
     app.get("/api/users/publicProfile/:username", findPublicProfile)
+    app.post("/api/users/request/:userName/:guideName", requestGuideByTraveller)
 }

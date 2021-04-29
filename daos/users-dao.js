@@ -25,7 +25,7 @@ const createUser = (credentials) => {
         + " email: " + credentials.email
         + " role: "+ credentials.role)
     return usersModel.create({username:credentials.username , password:credentials.password,
-        email: credentials.email,role:credentials.role})
+        email: credentials.email,role:credentials.role, location:credentials.location})
 }
 // Mongoose's findOneAndUpdate() is slightly different from the MongoDB Node.js driver's findOneAndUpdate()
 // because it returns the document itself, not a result object.
@@ -60,13 +60,18 @@ const findGuidesByLocation = (location) => {
 }
 
 
-const checkIfGuideRequested = (username, guidename) => {
-    console.log("User DAO checkIfGuideRequested: "+ username + " with " + guidename)
-    return usersModel.findOne({username:username})
-        .then((resultUser => {
-            usersModel.findOne({username:guidename}, {listOfRequests: resultUser})
-        }))
-
+const checkIfGuideRequested = (currentUser, guidename) => {
+    console.log("User DAO checkIfGuideRequested: "+ currentUser.username + " with " + guidename)
+    return usersModel.findOne({username:guidename, listOfRequests: currentUser._id})
+                .then((result) => {
+                    if (result == null){
+                        console.log("result not find" + result)
+                        return 0
+                    }else{
+                        console.log("result find" + result)
+                        return 1
+                    }
+                })
 }
 
 
@@ -96,6 +101,24 @@ const deletePlaceByUserName = (poiID, currentUser) => {
         })
 }
 
+const addToListOfRequests = (userName, guideName) =>{
+    console.log("User Dao addToListOfRequests")
+    return usersModel.findOne({username:userName}, (err, user) => {
+        if (user){
+            usersModel.findOne({username:guideName}, (err, guide) => {
+                if (guide) {
+                    console.log("DAO Add " + user.username + " to " + guide.username + "listOfRequests")
+                    user.listOfRequests.push(guide);
+                    guide.listOfRequests.push(user);
+                    user.save();
+                    guide.save();
+                }
+            })
+        }
+    })
+
+}
+
 module.exports = {
     findUserByUsername,
     findUserByCredentials,
@@ -103,5 +126,6 @@ module.exports = {
     findGuidesByLocation,
     updateUser,
     checkIfGuideRequested,
-    deletePlaceByUserName
+    deletePlaceByUserName,
+    addToListOfRequests
 }

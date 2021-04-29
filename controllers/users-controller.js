@@ -16,7 +16,8 @@ module.exports = (app) => {
             " role: "+ credentials.role)
         userDao.findUserByUsername(credentials.username)
             .then((actualUser) => {
-                if(actualUser.length > 0) {
+                if(actualUser != null && actualUser.length > 0) {
+                    console.log("User registered Found"+ actualUser)
                     // string 0, there is a user
                     // client knows what to check for
                     res.send("0")
@@ -24,6 +25,7 @@ module.exports = (app) => {
                     // user is not there
                     userDao.createUser(credentials)
                         .then((newUser) => {
+                            console.log("New User registered"+ newUser)
                             req.session['currentUser'] = newUser
                             res.send(newUser)
                         })
@@ -84,18 +86,23 @@ module.exports = (app) => {
 
     const profile = (req, res) => {
         const currentUser = req.session["currentUser"]
-        userDao.findUserByCredentials(currentUser)
-            .then((latestUser) => {
-                if (latestUser){
-                    // req.session['currentUser'] = latestUser
-                    console.log("In Profile: Controller get current user: " + latestUser.username + "'s profile")
-                    console.log(latestUser.email)
-                    res.send(latestUser)
-                }else{
-                    console.log("Controller can not get profile")
-                    res.send("0")
-                }
-            })
+        if (currentUser === undefined) {
+            res.send("0")
+        }else{
+            userDao.findUserByCredentials(currentUser)
+                .then((latestUser) => {
+                    if (latestUser){
+                        // req.session['currentUser'] = latestUser
+                        console.log("In Profile: Controller get current user: " + latestUser.username + "'s profile")
+                        console.log(latestUser.email)
+                        res.send(latestUser)
+                    }else{
+                        console.log("Controller can not get profile")
+                        res.send("0")
+                    }
+                })
+        }
+
         // if (currentUser){
         //     // req.session['currentUser'] = latestUser
         //     console.log("In Profile: Controller get current user: " + currentUser.username + "'s profile")
